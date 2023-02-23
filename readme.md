@@ -1,6 +1,6 @@
 # Enterprise Assistant
 
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/open-amt-cloud-toolkit/rps/badge)](https://api.securityscorecards.dev/projects/github.com/open-amt-cloud-toolkit/rps)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/open-amt-cloud-toolkit/enterprise-assistant/badge)](https://api.securityscorecards.dev/projects/github.com/open-amt-cloud-toolkit/enterprise-assistant)
 
 > Disclaimer: Production viable releases are tagged and listed under 'Releases'.  All other check-ins should be considered 'in-development' and should not be used in production
 
