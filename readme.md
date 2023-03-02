@@ -1,6 +1,6 @@
 # Enterprise Assistant
 
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/open-amt-cloud-toolkit/enterprise-assistant/badge)](https://api.securityscorecards.dev/projects/github.com/open-amt-cloud-toolkit/enterprise-assistant)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/open-amt-cloud-toolkit/enterprise-assistant/badge)](https://api.securityscorecards.dev/projects/github.com/open-amt-cloud-toolkit/enterprise-assistant) [![Discord Shield](https://discordapp.com/api/guilds/1063200098680582154/widget.png?style=shield)](https://discord.gg/yrcMp2kDWh)
 
 > Disclaimer: Production viable releases are tagged and listed under 'Releases'.  All other check-ins should be considered 'in-development' and should not be used in production
 
@@ -25,7 +25,17 @@ It is suggested to run Enterprise Assistant as a normal Windows application at f
 
 You can use the "Testing" menu to create and remove a test computer from the domain. This is useful to make sure everything is working well before getting requests from RPS.
 
+<br>
 
+## Additional Resources
+
+- For detailed documentation and Getting Started, [visit the docs site](https://open-amt-cloud-toolkit.github.io/docs).
+
+- Find a bug? Or have ideas for new features? [Open a new Issue](https://github.com/open-amt-cloud-toolkit/enterprise-assistant/issues).
+
+- Need additional support or want to get the latest news and events about Open AMT? Connect with the team directly through Discord.
+
+    [![Discord Banner 1](https://discordapp.com/api/guilds/1063200098680582154/widget.png?style=banner2)](https://discord.gg/yrcMp2kDWh)
 
 <!-- ## MeshCentral Configuration
 
