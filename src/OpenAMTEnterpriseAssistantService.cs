@@ -36,7 +36,6 @@ namespace OpenAMTEnterpriseAssistant
         private static String logFilePath = null;
         private static String debugFilePath = null;
         private List<OpenAMTEnterpriseAssistantServer.ServerEvent> eventsList = new List<OpenAMTEnterpriseAssistantServer.ServerEvent>();
-
         private bool RemoteCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors)
         {
             Log("RemoteCertificateValidationCallback");
@@ -83,6 +82,7 @@ namespace OpenAMTEnterpriseAssistant
             string argServerName = null;
             string argUserName = null;
             string argPassword = null;
+            string argSecurityKey = null;
             string argDevNameType = null;
             string argCAName = null;
             string argCATemplate = null;
@@ -118,7 +118,14 @@ namespace OpenAMTEnterpriseAssistant
                         string val = configLine.Substring(i + 1);
                         if (key == "host") { argServerName = val; argflags |= 1; }
                         if (key == "user") { argUserName = val; argflags |= 2; }
-                        if (key == "pass") { argPassword = val; argflags |= 4; }
+                        if (key == "pass") { 
+                            argPassword = val; 
+                            argflags |= 4; 
+                        }
+                        if (key == "securityKey") {
+                            argSecurityKey = val; 
+                            argflags |= 8; 
+                        }
                         if (key == "devnametype") { argDevNameType = val; }
                         if (key == "caname") { argCAName = val; }
                         if (key == "catemplate") { argCATemplate = val; }
@@ -252,6 +259,7 @@ namespace OpenAMTEnterpriseAssistant
             centralServer.Stop();
             centralServer.Dispose();
             centralServer = null;
+
         }
 
         private void centralServer_OnSignal(object sender, int signal)

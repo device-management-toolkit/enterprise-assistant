@@ -773,7 +773,9 @@ namespace OpenAMTEnterpriseAssistant
             if ((q == true) && (onSendOk != null)) { onSendOk(this); }
         }
 
-        private void SendData(byte[] buf) { SendData(buf, 0, buf.Length); }
+        private void SendData(byte[] buf) { 
+            SendData(buf, 0, buf.Length); 
+        }
 
         private void SendData(byte[] buf, int off, int len)
         {

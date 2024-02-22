@@ -28,6 +28,7 @@ using System.ServiceProcess;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using OpenAMTEnterpriseAssistant;
+using System.Linq;
 
 namespace OpenAMTEnterpriseAssistant
 {
@@ -37,6 +38,7 @@ namespace OpenAMTEnterpriseAssistant
         public DateTime refreshTime = DateTime.Now;
         public OpenAMTEnterpriseAssistantServer server = null;
         public OpenAMTEnterpriseAssistantService service = null;
+        public OpenAMTEnterpriseAssistantHttpServer httpServer = null;
         public X509Certificate2 lastBadConnectCert = null;
         public LocalPipeClient localPipeClient = null;
         public string title;
@@ -54,6 +56,7 @@ namespace OpenAMTEnterpriseAssistant
         public string argServerName = null;
         public string argUserName = null;
         public string argPassword = null;
+        public string argSecurityKey = null;
         public string argDevNameType = null;
         public string argCAName = null;
         public string argCATemplate = null;
@@ -112,6 +115,7 @@ namespace OpenAMTEnterpriseAssistant
                         if (key == "host") { argServerName = val; argflags |= 1; }
                         if (key == "user") { argUserName = val; argflags |= 2; }
                         if (key == "pass") { argPassword = val; argflags |= 4; }
+                        if (key == "securityKey") { argSecurityKey = val; argflags |= 8; }
                         if (key == "devnametype") { argDevNameType = val; }
                         if (key == "caname") { argCAName = val; }
                         if (key == "catemplate") { argCATemplate = val; }
@@ -279,7 +283,7 @@ namespace OpenAMTEnterpriseAssistant
             if (server != null) return;
             try
             {
-                // Create & start server
+               
                 server = new OpenAMTEnterpriseAssistantServer(argServerName, argUserName, argPassword, null, argDevLocation);
                 server.devNameType = argDevNameType;
                 server.devSecurityGroups = argDevSecurityGroups;
@@ -289,12 +293,32 @@ namespace OpenAMTEnterpriseAssistant
                 server.onEvent += Server_onEvent;
                 server.ignoreCert = ignoreCert;
                 server.SetCertificateAuthority(argCAName, argCATemplate, argCertCommonName, argCertAltNames);
-                server.Start();
+                // Start Web Socket Server
+                if (!String.IsNullOrEmpty(argServerName))
+                {
+                    server.Start();
+                } else {
+                    Log("RPS Server hostname is empty");
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Log("Exception" + ex.ToString());
-                throw ex;
+                 Log("Failed to Start websocket");
+            }
+
+            if (httpServer == null)
+            {
+                try
+                {
+                    httpServer = new OpenAMTEnterpriseAssistantHttpServer(server);
+                    httpServer.StartServer();
+                    Log("Started httpServer...");
+                }
+                catch (Exception)
+                {
+                    Log("Failed to Start httpServer");
+                }
+                
             }
         }
 
@@ -327,6 +351,10 @@ namespace OpenAMTEnterpriseAssistant
             this.Text = title;
             Log("Disconnected by user");
             updateInfo();
+
+            if (httpServer.IsServerListening) {
+                httpServer.StopServer();
+            }
         }
 
         private void Server_onMessage(string msg)
@@ -417,6 +445,9 @@ namespace OpenAMTEnterpriseAssistant
                         if (key == "host") { f.host = val; }
                         if (key == "user") { f.user = val; }
                         if (key == "pass") { f.pass = val; }
+                        if (key == "securitykey") {
+                            f.securityKey = val; 
+                        }
                         if (key == "devnametype") { f.devNameType = val; }
                         if (key == "caname") { caname = val; }
                         if (key == "catemplate") { catemplate = val; }
@@ -446,6 +477,7 @@ namespace OpenAMTEnterpriseAssistant
                 argServerName = f.host;
                 argUserName = f.user;
                 argPassword = f.pass;
+                argSecurityKey = f.securityKey;
                 argDevNameType = f.devNameType;
                 if (f.caname != "") { argCAName = f.caname; } else { argCAName = null; }
                 argCATemplate = f.catemplate;
@@ -459,6 +491,7 @@ namespace OpenAMTEnterpriseAssistant
                 config += "host=" + f.host + "\r\n";
                 config += "user=" + f.user + "\r\n";
                 config += "pass=" + f.pass + "\r\n";
+                config += "securityKey=" + f.securityKey + "\r\n";
                 config += "devNameType=" + f.devNameType + "\r\n";
                 if (f.caname != "") {
                     config += "caname=" + f.caname + "\r\n";
@@ -476,7 +509,9 @@ namespace OpenAMTEnterpriseAssistant
                 if (f.log) { config += "log=1\r\n"; }
                 if (f.debug) { config += "debug=1\r\n"; }
                 if (f.ignoreCert) { config += "ignoreCert=1\r\n"; }
-                try { File.WriteAllText(configFile, config); } catch (Exception) {
+                try { 
+                    File.WriteAllText(configFile, config); 
+                } catch (Exception) {
                     MessageBox.Show(this, "Unable to write config.txt file.", "Settings Error");
                 }
 

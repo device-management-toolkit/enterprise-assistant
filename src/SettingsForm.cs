@@ -63,6 +63,7 @@ namespace OpenAMTEnterpriseAssistant
         public string host { get { return hostTextBox.Text; } set { hostTextBox.Text = value; updateInfo(); } }
         public string user { get { return userTextBox.Text; } set { userTextBox.Text = value; updateInfo(); } }
         public string pass { get { return passTextBox.Text; } set { passTextBox.Text = value; updateInfo(); } }
+        public string securityKey { get { return securityKeyTextBox.Text; } set { securityKeyTextBox.Text = value; updateInfo(); } }
         public string caname { get { return caTextBox.Text; } set { caTextBox.Text = value; updateInfo(); } }
         public string catemplate { get { return templateComboBox.Text; } set { templateComboBox.Text = value; updateInfo(); } }
         public Boolean ignoreCert { get { return skipTlsCheckBox.Checked; } set { skipTlsCheckBox.Checked = value; updateInfo(); } }
@@ -208,7 +209,7 @@ namespace OpenAMTEnterpriseAssistant
 
         private void updateInfo()
         {
-            templateComboBox.Enabled = certCommonNameComboBox.Enabled = ((checkedCA == caTextBox.Text) && (checkedCA != ""));
+          templateComboBox.Enabled = certCommonNameComboBox.Enabled = ((checkedCA == caTextBox.Text) && (checkedCA != ""));
 
             bool ok = true;
             if (caTextBox.Text.Length != 0)
@@ -219,9 +220,9 @@ namespace OpenAMTEnterpriseAssistant
 
             checkCaButton.Enabled = ((checkedCA != caTextBox.Text) && (caTextBox.Text != "") && (ok == true));
 
-            if (hostTextBox.Text.Length == 0) { ok = false; }
-            if (userTextBox.Text.Length == 0) { ok = false; }
-            if (passTextBox.Text.Length == 0) { ok = false; }
+            if ((hostTextBox.Text.Length == 0) || (userTextBox.Text.Length == 0 && passTextBox.Text.Length == 0 && securityKeyTextBox.Text.Length == 0)) { ok = false; }
+            if ((hostTextBox.Text.Length != 0) && (userTextBox.Text.Length == 0 && passTextBox.Text.Length == 0 && securityKeyTextBox.Text.Length == 0)) { ok = true; }
+            if ((hostTextBox.Text.Length == 0) && (userTextBox.Text.Length != 0 && passTextBox.Text.Length != 0 && securityKeyTextBox.Text.Length != 0)) { ok = true; }
             if ((caTextBox.Text != "") && (checkedCA != caTextBox.Text)) { ok = false; }
             okButton.Enabled = ok;
 
@@ -292,5 +293,21 @@ namespace OpenAMTEnterpriseAssistant
                 }
             }
         }
+
+        private void userTextBox_TextChanged(object sender, EventArgs e)
+        {
+            updateInfo();
+        }
+
+        private void passTextBox_TextChanged(object sender, EventArgs e)
+        {
+            updateInfo();
+        }
+
+        private void securityKeyTextBox_TextChanged(object sender, EventArgs e)
+        {
+            updateInfo();
+        }
+
     }
 }

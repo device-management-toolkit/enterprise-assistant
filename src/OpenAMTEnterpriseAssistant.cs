@@ -282,7 +282,7 @@ namespace OpenAMTEnterpriseAssistant
             }
         }
 
-        private void RequestFor8021xProfile(Dictionary<string, object> message)
+        public Dictionary<string, object> RequestFor8021xProfile(Dictionary<string, object> message, bool isHttpRequest = false)
         {
             int satelliteFlags = 0;
             string nodeid = null;
@@ -295,161 +295,196 @@ namespace OpenAMTEnterpriseAssistant
             string clientCert = null;
             string clientCertId = null;
             string devVersion = null;
-
+            Dictionary<string, object> response = new Dictionary<string, object>();
             try
             {
-                satelliteFlags = (int)message["satelliteFlags"];
-                nodeid = (string)message["nodeid"];
-                domain = (string)message["domain"];
-                reqid = (string)message["reqid"];
-                authProtocol = (int)message["authProtocol"];
-                if (message.ContainsKey("devname")) { devname = (string)message["devname"]; }
-                if (message.ContainsKey("osname")) { osname = (string)message["osname"]; }
-                if (message.ContainsKey("icon")) { devIcon = (int)message["icon"]; }
-                if (message.ContainsKey("cert")) { clientCert = (string)message["cert"]; }
-                if (message.ContainsKey("certid")) { clientCertId = (string)message["certid"]; }
-                if (message.ContainsKey("ver")) { devVersion = (string)message["ver"]; }
-            }
-            catch (Exception) { satelliteFlags = 0; }
+                try
+                {
+                    satelliteFlags = Convert.ToInt32(message["satelliteFlags"]);
+                    nodeid = (string)message["nodeid"];
+                    domain = (string)message["domain"];
+                    reqid = (string)message["reqid"];
+                    authProtocol = Convert.ToInt32(message["authProtocol"]);
+                    if (message.ContainsKey("devname")) { devname = (string)message["devname"]; }
+                    if (message.ContainsKey("osname")) { osname = (string)message["osname"]; }
+                    if (message.ContainsKey("icon")) { devIcon = Convert.ToInt32(message["icon"]); }
+                    if (message.ContainsKey("cert")) { clientCert = (string)message["cert"]; }
+                    if (message.ContainsKey("certid")) { clientCertId = (string)message["certid"]; }
+                    if (message.ContainsKey("ver")) { devVersion = (string)message["ver"]; }
+                }
+                catch (Exception ex)
+                {
+                    Log("Error :" + ex);
+                    satelliteFlags = 0; 
+                }        
 
-            if (devname == null) { devname = nodeid; }
+                if (devname == null) {
+                    devname = nodeid; 
+                }
 
-            if ((satelliteFlags != 2) || (nodeid == null) || (domain == null) || (reqid == null) || (authProtocol > 10) || (authProtocol < 0))
-            {
-                Log("Open AMT Enterprise Assistant - Invalid request for 802.1x profile.");
-                return;
-            }
+                if ((satelliteFlags != 2) || (nodeid == null) || (domain == null) || (reqid == null) || (authProtocol > 10) || (authProtocol < 0))
+                {
+                    response["status"] = "Error";
+                    response["details"] = "Invalid request for 802.1x profile.";
+                    Log("Open AMT Enterprise Assistant - Invalid request for 802.1x profile.");
+                    return response;
+                }
 
-            if (devname != null) { Log("Open AMT Enterprise Assistant - " + devname + " - 802.1x " + netAuthStrings[authProtocol] + " request."); }
+                if (devname != null) {
+                    Log("Open AMT Enterprise Assistant - " + devname + " - 802.1x " + netAuthStrings[authProtocol] + " request."); 
+                }
 
-            switch (authProtocol)
-            {
-                case 0: // eap-tls
-                    {
-                        if (caName == null)
+                switch (authProtocol)
+                {
+                    case 0: // eap-tls
                         {
-                            LogEvent(devIcon, "ERROR: " + devname + " requested a EAP-TLS profile with no CA configured.");
-                            return; // We dont have a CA, EAP-TLS is not supported.
-                        }
-
-                        // Check that this computer is allowed to have a 802.1x profile
-                        // TODO
-
-                        // If Intel AMT already has a 802.1x client certificate, check if it's correct
-                        bool certOk = false;
-                        string certRovokeSerialNumber = null;
-                        if ((clientCert != null) && (clientCertId != null))
-                        {
-                            try
+                            if (caName == null)
                             {
-                                // Decode the certificate
-                                X509Certificate2 cert = new X509Certificate2(Convert.FromBase64String(clientCert));
-                                certRovokeSerialNumber = cert.GetSerialNumberString();
-                                long certStart = cert.NotBefore.Ticks;
-                                long certEnd = cert.NotAfter.Ticks;
-                                long certMidPoint = certStart + ((certEnd - certStart) / 2);
-                                long now = DateTime.Now.Ticks;
-                                if ((now > certStart) && (now < certMidPoint))
+                                response["status"] = "Error";
+                                response["details"] = "ERROR: " + devname + " requested a EAP-TLS profile with no CA configured.";
+                                LogEvent(devIcon, "ERROR: " + devname + " requested a EAP-TLS profile with no CA configured.");
+                                return response; // We dont have a CA, EAP-TLS is not supported.
+                            }
+
+                            // Check that this computer is allowed to have a 802.1x profile
+                            // TODO
+
+                            // If Intel AMT already has a 802.1x client certificate, check if it's correct
+                            bool certOk = false;
+                            string certRovokeSerialNumber = null;
+                            if ((clientCert != null) && (clientCertId != null))
+                            {
+                                try
                                 {
-                                    // Certificate is within validity period, check issuer name
-                                    if (cert.Issuer == caRootCert.Subject)
+                                    // Decode the certificate
+                                    X509Certificate2 cert = new X509Certificate2(Convert.FromBase64String(clientCert));
+                                    certRovokeSerialNumber = cert.GetSerialNumberString();
+                                    long certStart = cert.NotBefore.Ticks;
+                                    long certEnd = cert.NotAfter.Ticks;
+                                    long certMidPoint = certStart + ((certEnd - certStart) / 2);
+                                    long now = DateTime.Now.Ticks;
+                                    if ((now > certStart) && (now < certMidPoint))
                                     {
-                                        // Correct issuer, check that it's correctly signed by the CA root.
-                                        certOk = true;
+                                        // Certificate is within validity period, check issuer name
+                                        if (cert.Issuer == caRootCert.Subject)
+                                        {
+                                            // Correct issuer, check that it's correctly signed by the CA root.
+                                            certOk = true;
+                                        }
                                     }
                                 }
+                                catch (Exception) { }
                             }
-                            catch (Exception) { }
-                        }
 
-                        if (certOk)
-                        {
-                            // Existing 802.1x client certificate is ok, just renew the 802.1x profile
-                            DomainControllerServices.ActiveDirectoryComputerObject computer = null;
-                            try { computer = dc.CreateComputer(ComputerName(devname, nodeid), ComputerDesciption(devname, nodeid, devVersion), devSecurityGroups); } catch (Exception ex) { Log("MeshCentralSatelliteServer: " + ex.ToString()); }
-                            if (computer != null)
+                            if (certOk)
                             {
-                                if (computer.AlreadyPresent) { LogEvent(devIcon, "Reset computer: " + devname); } else { LogEvent(devIcon, "Added computer: " + devname); }
-                                Dictionary<string, object> response = new Dictionary<string, object>();
-                                response["authProtocol"] = authProtocol;
-                                response["domain"] = dc.DomainName;
-                                response["username"] = computer.SamAccountName;
-                                response["password"] = computer.Password;
-                                if (caRootCert != null) { response["rootcert"] = Convert.ToBase64String(caRootCert.GetRawCertData(), Base64FormattingOptions.None); }
-                                response["certid"] = clientCertId;
-                                message["subaction"] = "802.1x-Profile-Completed";
-                                message["response"] = response;
-                                rps.sendCommand(message);
-                                Log("Open AMT Enterprise Assistant - " + devname + " - Cert OK, Sent response.");
+                                // Existing 802.1x client certificate is ok, just renew the 802.1x profile
+                                DomainControllerServices.ActiveDirectoryComputerObject computer = null;
+                                try { computer = dc.CreateComputer(ComputerName(devname, nodeid), ComputerDesciption(devname, nodeid, devVersion), devSecurityGroups); } catch (Exception ex) { Log("MeshCentralSatelliteServer: " + ex.ToString()); }
+                                if (computer != null)
+                                {
+                                    if (computer.AlreadyPresent) { LogEvent(devIcon, "Reset computer: " + devname); } else { LogEvent(devIcon, "Added computer: " + devname); }
+                                    response["authProtocol"] = authProtocol;
+                                    response["domain"] = dc.DomainName;
+                                    response["username"] = computer.SamAccountName;
+                                    response["password"] = computer.Password;
+                                    if (caRootCert != null) { response["rootcert"] = Convert.ToBase64String(caRootCert.GetRawCertData(), Base64FormattingOptions.None); }
+                                    response["certid"] = clientCertId;
+                                    message["subaction"] = "802.1x-Profile-Completed";
+                                    message["response"] = response;
+
+                                    if (!isHttpRequest)
+                                    {
+                                        rps.sendCommand(message);
+                                    }
+                                    Log("Open AMT Enterprise Assistant - " + devname + " - Cert OK, Sent response.");
+                                }
+                                else
+                                {
+                                    response["status"] = "Error";
+                                    response["details"] = "Failed to add computer: " + devname;
+                                    LogEvent(devIcon, "Failed to add computer: " + devname);
+                                }
                             }
                             else
                             {
-                                LogEvent(devIcon, "Failed to add computer: " + devname);
-                            }
-                        }
-                        else
-                        {
-                            // Revoke the old certificate, we will be getting a new one
-                            if (certRovokeSerialNumber != null)
-                            {
-                                CertificationAuthorityService.RevokeCertificateFromCa(caName, certRovokeSerialNumber, DomainControllerServices.CertRevokeReason.CrlReasonCessationOfOperation);
-                            }
+                                // Revoke the old certificate, we will be getting a new one
+                                if (certRovokeSerialNumber != null)
+                                {
+                                    CertificationAuthorityService.RevokeCertificateFromCa(caName, certRovokeSerialNumber, DomainControllerServices.CertRevokeReason.CrlReasonCessationOfOperation);
+                                }
 
-                            // Request that Intel AMT generate a key pair
-                            Dictionary<string, object> rmessage = new Dictionary<string, object>();
-                            rmessage["action"] = "satellite";
-                            rmessage["satelliteFlags"] = 2; // Indicate 802.1x operation
-                            rmessage["nodeid"] = nodeid;
-                            rmessage["domain"] = domain;
-                            rmessage["subaction"] = "802.1x-KeyPair-Request";
-                            rmessage["reqid"] = reqid;
-                            rps.sendCommand(rmessage);
-                            Log("Open AMT Enterprise Assistant - " + devname + " - Requesting key pair generation...");
+                                // Request that Intel AMT generate a key pair
+                                response["action"] = "satellite";
+                                response["satelliteFlags"] = 2; // Indicate 802.1x operation
+                                response["nodeid"] = nodeid;
+                                response["domain"] = domain;
+                                response["subaction"] = "802.1x-KeyPair-Request";
+                                response["reqid"] = reqid;
+                                if (!isHttpRequest)
+                                {
+                                    rps.sendCommand(message);
+                                    Log("Open AMT Enterprise Assistant - " + devname + " - Requesting key pair generation...");
+                                }
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case 2: // peapv0/eap-mschapv2
-                    {
-                        if (dc == null)
+                    case 2: // peapv0/eap-mschapv2
                         {
-                            LogEvent(devIcon, "Failed to add computer: " + devname);
-                        }
-                        else
-                        {
-                            // Request the computer be created or reset in the domain
-                            DomainControllerServices.ActiveDirectoryComputerObject computer = null;
-                            try { computer = dc.CreateComputer(ComputerName(devname, nodeid), ComputerDesciption(devname, nodeid, devVersion), devSecurityGroups); } catch (Exception ex) { Log("MeshCentralSatelliteServer: " + ex.ToString()); }
-                            if (computer != null)
+                            if (dc == null)
                             {
-                                if (computer.AlreadyPresent) { LogEvent(devIcon, "Reset computer: " + devname); } else { LogEvent(devIcon, "Added computer: " + devname); }
-                                Dictionary<string, object> response = new Dictionary<string, object>();
-                                response["authProtocol"] = authProtocol;
-                                response["domain"] = dc.DomainName;
-                                response["username"] = computer.SamAccountName;
-                                response["password"] = computer.Password;
-                                if (caRootCert != null) { response["rootcert"] = Convert.ToBase64String(caRootCert.GetRawCertData(), Base64FormattingOptions.None); }
-                                message["subaction"] = "802.1x-Profile-Completed";
-                                message["response"] = response;
-                                rps.sendCommand(message);
-                                Log("Open AMT Enterprise Assistant - " + devname + " - Sent response.");
+                                LogEvent(devIcon, "Failed to add computer: " + devname);
                             }
                             else
                             {
-                                LogEvent(devIcon, "Failed to add computer: " + devname);
+                                // Request the computer be created or reset in the domain
+                                DomainControllerServices.ActiveDirectoryComputerObject computer = null;
+                                try { computer = dc.CreateComputer(ComputerName(devname, nodeid), ComputerDesciption(devname, nodeid, devVersion), devSecurityGroups); } catch (Exception ex) { Log("MeshCentralSatelliteServer: " + ex.ToString()); }
+                                if (computer != null)
+                                {
+                                    if (computer.AlreadyPresent) { LogEvent(devIcon, "Reset computer: " + devname); } else { LogEvent(devIcon, "Added computer: " + devname); }
+                                    response["authProtocol"] = authProtocol;
+                                    response["domain"] = dc.DomainName;
+                                    response["username"] = computer.SamAccountName;
+                                    response["password"] = computer.Password;
+                                    if (caRootCert != null) { response["rootcert"] = Convert.ToBase64String(caRootCert.GetRawCertData(), Base64FormattingOptions.None); }
+                                    message["subaction"] = "802.1x-Profile-Completed";
+                                    message["response"] = response;
+                                    if (!isHttpRequest)
+                                    {
+                                        rps.sendCommand(message);
+                                        Log("Open AMT Enterprise Assistant - " + devname + " - Sent response.");
+                                    }
+                                }
+                                else
+                                {
+                                    response["status"] = "Error";
+                                    response["details"] = "Failed to add computer: " + devname;
+                                    LogEvent(devIcon, "Failed to add computer: " + devname);
+                                }
                             }
+                            break;
                         }
-                        break;
-                    }
-                default:
-                    {
-                        Log("Open AMT Enterprise Assistant - " + devname + " - Unsupported 802.1x protocol: " + netAuthStrings[authProtocol]);
-                        break;
-                    }
+                    default:
+                        {
+                            response["status"] = "Error";
+                            response["details"] = "Unsupported 802.1x protocol";
+                            Log("Open AMT Enterprise Assistant - " + devname + " - Unsupported 802.1x protocol: " + netAuthStrings[authProtocol]);
+                            break;
+                        }
+                }
+
             }
+            catch (Exception ex) {
+                response["status"] = "Error";
+                response["details"] = "Exception occurred: " + ex.Message;
+                Log("Error in RequestFor8021xProfile: " + ex.Message);
+            }
+            return response;
         }
 
 
-        private void ResponseFor8021xKeyPairGeneration(Dictionary<string, object> message)
+        public Dictionary<string, object> ResponseFor8021xKeyPairGeneration(Dictionary<string, object> message, bool isHttpRequest = false)
         {
             int satelliteFlags = 0;
             string nodeid = null;
@@ -462,19 +497,22 @@ namespace OpenAMTEnterpriseAssistant
             string DERKey = null;
             string keyInstanceId = null;
             string devVersion = null;
-
+            Dictionary<string, object> rmessage = new Dictionary<string, object>();
+            Dictionary<string, object> errmessage = new Dictionary<string, object>();
             try
             {
-                satelliteFlags = (int)message["satelliteFlags"];
+                satelliteFlags = Convert.ToInt32(message["satelliteFlags"]);
                 nodeid = (string)message["nodeid"];
                 domain = (string)message["domain"];
                 reqid = (string)message["reqid"];
-                authProtocol = (int)message["authProtocol"];
+                authProtocol = Convert.ToInt32(message["authProtocol"]);
                 if (message.ContainsKey("devname")) { devname = (string)message["devname"]; }
                 if (message.ContainsKey("osname")) { osname = (string)message["osname"]; }
-                if (message.ContainsKey("icon")) { devIcon = (int)message["icon"]; }
+                if (message.ContainsKey("icon")) { devIcon = Convert.ToInt32(message["icon"]); }
                 if (message.ContainsKey("DERKey")) { DERKey = (string)message["DERKey"]; }
-                if (message.ContainsKey("keyInstanceId")) { keyInstanceId = (string)message["keyInstanceId"]; }
+                if (message.ContainsKey("keyInstanceId")) { 
+                    keyInstanceId = (string)message["keyInstanceId"];
+                }
                 if (message.ContainsKey("ver")) { devVersion = (string)message["ver"]; }
             }
             catch (Exception) { satelliteFlags = 0; }
@@ -483,15 +521,23 @@ namespace OpenAMTEnterpriseAssistant
 
             if ((satelliteFlags != 2) || (nodeid == null) || (domain == null) || (reqid == null) || (authProtocol > 10) || (authProtocol < 0))
             {
-                Log("Open AMT Enterprise Assistant - Invalid response for 802.1x key pair generation.");
-                return;
+                errmessage["status"] = "Error";
+                errmessage["details"] = "Invalid response for 802.1x key pair generation.";
+                Log("Open AMT Enterprise Assistant -  Invalid response for 802.1x key pair generation.");
+                return errmessage;
             }
-
+            
             switch (authProtocol)
             {
                 case 0: // eap-tls
                     {
-                        if (caName == null) return; // We dont have a CA, EAP-TLS is not supported.
+                        if (caName == null)
+                        {
+                            errmessage["status"] = "Error";
+                            errmessage["details"] = "ERROR: " + devname + " requested a EAP-TLS profile with no CA configured.";
+                            LogEvent(devIcon, "ERROR: " + devname + " requested a EAP-TLS profile with no CA configured.");
+                            return errmessage; // We dont have a CA, EAP-TLS is not supported.
+                        }
 
                         // Check that this computer is allowed to have a 802.1x profile
                         // TODO
@@ -533,7 +579,6 @@ namespace OpenAMTEnterpriseAssistant
                             Dictionary<string, object> response = new Dictionary<string, object>();
                             response["csr"] = csr;
                             response["keyInstanceId"] = keyInstanceId;
-                            Dictionary<string, object> rmessage = new Dictionary<string, object>();
                             rmessage["action"] = "satellite";
                             rmessage["satelliteFlags"] = 2; // Indicate 802.1x operation
                             rmessage["nodeid"] = nodeid;
@@ -541,20 +586,26 @@ namespace OpenAMTEnterpriseAssistant
                             rmessage["subaction"] = "802.1x-CSR-Request";
                             rmessage["reqid"] = reqid;
                             rmessage["response"] = response;
-                            rps.sendCommand(rmessage);
+                            if (!isHttpRequest)
+                            {
+                                rps.sendCommand(rmessage);
+                            }
                             Log("Open AMT Enterprise Assistant - " + devname + " - Requesting CSR signature...");
                         }
                         break;
                     }
                 default:
                     {
+                        errmessage["status"] = "Error";
+                        errmessage["details"] = "ERROR: " + devname + " - Unsupported 802.1x protocol: " + netAuthStrings[authProtocol];
                         Log("Open AMT Enterprise Assistant - " + devname + " - Unsupported 802.1x protocol: " + netAuthStrings[authProtocol]);
-                        break;
+                        return errmessage;
                     }
             }
+            return rmessage;
         }
 
-        private void ResponseFor8021xCSR(Dictionary<string, object> message)
+        public Dictionary<string, object> ResponseFor8021xCSR(Dictionary<string, object> message, bool isHttpRequest = false)
         {
             int satelliteFlags = 0;
             string nodeid = null;
@@ -566,17 +617,17 @@ namespace OpenAMTEnterpriseAssistant
             int devIcon = 1;
             string signedcsr = null;
             string devVersion = null;
-
+            Dictionary<string, object> errmessage = new Dictionary<string, object>();
             try
             {
-                satelliteFlags = (int)message["satelliteFlags"];
+                satelliteFlags = Convert.ToInt32(message["satelliteFlags"]);
                 nodeid = (string)message["nodeid"];
                 domain = (string)message["domain"];
                 reqid = (string)message["reqid"];
-                authProtocol = (int)message["authProtocol"];
+                authProtocol = Convert.ToInt32(message["authProtocol"]);
                 if (message.ContainsKey("devname")) { devname = (string)message["devname"]; }
                 if (message.ContainsKey("osname")) { osname = (string)message["osname"]; }
-                if (message.ContainsKey("icon")) { devIcon = (int)message["icon"]; }
+                if (message.ContainsKey("icon")) { devIcon = Convert.ToInt32(message["icon"]); }
                 if (message.ContainsKey("signedcsr")) { signedcsr = (string)message["signedcsr"]; }
                 if (message.ContainsKey("ver")) { devVersion = (string)message["ver"]; }
             }
@@ -586,15 +637,23 @@ namespace OpenAMTEnterpriseAssistant
 
             if ((satelliteFlags != 2) || (nodeid == null) || (domain == null) || (reqid == null) || (authProtocol > 10) || (authProtocol < 0) || (signedcsr == null))
             {
+                errmessage["status"] = "Error";
+                errmessage["details"] = "Invalid response for 802.1x CSR.";
                 Log("Open AMT Enterprise Assistant - Invalid response for 802.1x CSR.");
-                return;
+                return errmessage;
             }
 
             switch (authProtocol)
             {
                 case 0: // eap-tls
                     {
-                        if (caName == null) return; // We dont have a CA, EAP-TLS is not supported.
+                        if (caName == null)
+                        {
+                            errmessage["status"] = "Error";
+                            errmessage["details"] = "ERROR: " + devname + " requested a EAP-TLS profile with no CA configured.";
+                            LogEvent(devIcon, "ERROR: " + devname + " requested a EAP-TLS profile with no CA configured.");
+                            return errmessage; // We dont have a CA, EAP-TLS is not supported.
+                        }
 
                         // Check that this computer is allowed to have a 802.1x profile
                         // TODO
@@ -619,29 +678,41 @@ namespace OpenAMTEnterpriseAssistant
                                 //response["password"] = computer.Password;
                                 message["subaction"] = "802.1x-Profile-Completed";
                                 message["response"] = response;
-                                rps.sendCommand(message);
+                                if (!isHttpRequest)
+                                {
+                                    rps.sendCommand(message);
+                                }
                                 Log("Open AMT Enterprise Assistant - " + devname + " - Sent response.");
                             }
                             else
                             {
+                                errmessage["status"] = "Error";
+                                errmessage["details"] = "ERROR: Failed to add computer: " + devname;
                                 LogEvent(devIcon, "Failed to add computer: " + devname);
+                                return errmessage;
                             }
                         }
                         else
                         {
+                            errmessage["status"] = "Error";
+                            errmessage["details"] = "ERROR: Failed to sign the certificate: " + devname;
                             LogEvent(devIcon, "Failed to sign the certificate: " + devname);
+                            return errmessage;
                         }
                         break;
                     }
                 default:
                     {
+                        errmessage["status"] = "Error";
+                        errmessage["details"] = "ERROR: " + devname + " - Unsupported 802.1x protocol: " + netAuthStrings[authProtocol];
                         Log("Open AMT Enterprise Assistant - " + devname + " - Unsupported 802.1x protocol: " + netAuthStrings[authProtocol]);
-                        break;
+                        return errmessage;
                     }
             }
+            return message;
         }
 
-        private void RequestFor8021xProfileRemoval(Dictionary<string, object> message)
+        public void RequestFor8021xProfileRemoval(Dictionary<string, object> message)
         {
             int satelliteFlags = 0;
             string nodeid = null;
@@ -651,7 +722,7 @@ namespace OpenAMTEnterpriseAssistant
 
             try
             {
-                satelliteFlags = (int)message["satelliteFlags"];
+                satelliteFlags = Convert.ToInt32(message["satelliteFlags"]);
                 nodeid = (string)message["nodeid"];
                 domain = (string)message["domain"];
             }
