@@ -64,6 +64,7 @@ namespace OpenAMTEnterpriseAssistant
         public string user { get { return userTextBox.Text; } set { userTextBox.Text = value; updateInfo(); } }
         public string pass { get { return passTextBox.Text; } set { passTextBox.Text = value; updateInfo(); } }
         public string securityKey { get { return securityKeyTextBox.Text; } set { securityKeyTextBox.Text = value; updateInfo(); } }
+        public int port { get { return Convert.ToInt32(portTextBox.Text); } set { portTextBox.Text = value.ToString(); updateInfo(); } }
         public string caname { get { return caTextBox.Text; } set { caTextBox.Text = value; updateInfo(); } }
         public string catemplate { get { return templateComboBox.Text; } set { templateComboBox.Text = value; updateInfo(); } }
         public Boolean ignoreCert { get { return skipTlsCheckBox.Checked; } set { skipTlsCheckBox.Checked = value; updateInfo(); } }
@@ -309,5 +310,9 @@ namespace OpenAMTEnterpriseAssistant
             updateInfo();
         }
 
+        private void portTextBox_MaskChanged(object sender, EventArgs e)
+        {
+            updateInfo();
+        }
     }
 }

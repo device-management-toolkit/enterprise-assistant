@@ -69,6 +69,8 @@
             this.userTextBox = new System.Windows.Forms.TextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.securityGroupsCheckedListBox = new System.Windows.Forms.CheckedListBox();
+            this.Port = new System.Windows.Forms.Label();
+            this.portTextBox = new System.Windows.Forms.MaskedTextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -465,6 +467,8 @@
             // 
             this.groupBox7.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox7.Controls.Add(this.portTextBox);
+            this.groupBox7.Controls.Add(this.Port);
             this.groupBox7.Controls.Add(this.securityKeyTextBox);
             this.groupBox7.Controls.Add(this.passTextBox);
             this.groupBox7.Controls.Add(this.label10);
@@ -531,9 +535,9 @@
             // 
             this.userTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.userTextBox.Location = new System.Drawing.Point(116, 12);
+            this.userTextBox.Location = new System.Drawing.Point(116, 11);
             this.userTextBox.Name = "userTextBox";
-            this.userTextBox.Size = new System.Drawing.Size(412, 20);
+            this.userTextBox.Size = new System.Drawing.Size(320, 20);
             this.userTextBox.TabIndex = 0;
             this.userTextBox.TextChanged += new System.EventHandler(this.userTextBox_TextChanged);
             // 
@@ -561,6 +565,26 @@
             this.securityGroupsCheckedListBox.Size = new System.Drawing.Size(519, 123);
             this.securityGroupsCheckedListBox.Sorted = true;
             this.securityGroupsCheckedListBox.TabIndex = 0;
+            // 
+            // Port
+            // 
+            this.Port.AutoSize = true;
+            this.Port.Location = new System.Drawing.Point(446, 14);
+            this.Port.Name = "Port";
+            this.Port.Size = new System.Drawing.Size(26, 13);
+            this.Port.TabIndex = 20;
+            this.Port.Text = "Port";
+            // 
+            // portTextBox
+            // 
+            this.portTextBox.Location = new System.Drawing.Point(477, 10);
+            this.portTextBox.Mask = "9999?9";
+            this.portTextBox.Name = "portTextBox";
+            this.portTextBox.PromptChar = ' ';
+            this.portTextBox.Size = new System.Drawing.Size(50, 20);
+            this.portTextBox.TabIndex = 22;
+            this.portTextBox.Text = "8000";
+            this.portTextBox.MaskChanged += new System.EventHandler(this.portTextBox_MaskChanged);
             // 
             // SettingsForm
             // 
@@ -640,5 +664,7 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox securityKeyTextBox;
         private System.Windows.Forms.TextBox passTextBox;
+        private System.Windows.Forms.Label Port;
+        private System.Windows.Forms.MaskedTextBox portTextBox;
     }
 }
