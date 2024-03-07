@@ -18,6 +18,8 @@ using System;
 using System.Linq;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Net;
 
 namespace OpenAMTEnterpriseAssistant
 {
@@ -58,12 +60,43 @@ namespace OpenAMTEnterpriseAssistant
             } else {
                 securityGroupsCheckedListBox.Enabled = false;
             }
+
+            // Bind all the avaialable IP addresses
+            List<string> items = new List<string>() { };
+            // Add default item
+            items.Add("*");
+            string hostName = Dns.GetHostName();
+            // Get the IP address list that resolves to the host names.
+            IPHostEntry ipEntry = Dns.GetHostEntry(hostName);
+            // Get all IPv4 addresses
+            IPAddress[] ipv4Addresses = ipEntry.AddressList
+                .Where(addr => addr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                .ToArray();
+            foreach (IPAddress addr in ipv4Addresses)
+            {
+                items.Add(addr.ToString());
+            }
+            cbAddress.DataSource = items;
+            cbAddress.SelectedIndex = 0; // Set the default item as selected
+
         }
 
         public string host { get { return hostTextBox.Text; } set { hostTextBox.Text = value; updateInfo(); } }
         public string user { get { return userTextBox.Text; } set { userTextBox.Text = value; updateInfo(); } }
         public string pass { get { return passTextBox.Text; } set { passTextBox.Text = value; updateInfo(); } }
         public string securityKey { get { return securityKeyTextBox.Text; } set { securityKeyTextBox.Text = value; updateInfo(); } }
+        public string address { 
+            get { 
+                return cbAddress.SelectedValue?.ToString(); 
+            } 
+            set {
+                if (value != null) {
+                    cbAddress.SelectedItem = value;
+                }
+                updateInfo(); 
+            } 
+        }
+        public int port { get { return Convert.ToInt32(portTextBox.Text); } set { portTextBox.Text = value.ToString(); updateInfo(); } }
         public string caname { get { return caTextBox.Text; } set { caTextBox.Text = value; updateInfo(); } }
         public string catemplate { get { return templateComboBox.Text; } set { templateComboBox.Text = value; updateInfo(); } }
         public Boolean ignoreCert { get { return skipTlsCheckBox.Checked; } set { skipTlsCheckBox.Checked = value; updateInfo(); } }
@@ -305,6 +338,16 @@ namespace OpenAMTEnterpriseAssistant
         }
 
         private void securityKeyTextBox_TextChanged(object sender, EventArgs e)
+        {
+            updateInfo();
+        }
+
+        private void portTextBox_MaskChanged(object sender, EventArgs e)
+        {
+            updateInfo();
+        }
+
+        private void cbAddress_SelectedIndexChanged(object sender, EventArgs e)
         {
             updateInfo();
         }

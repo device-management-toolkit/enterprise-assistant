@@ -207,6 +207,7 @@
             // 
             // mainMenuStrip
             // 
+            this.mainMenuStrip.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.mainMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.mainMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
@@ -430,7 +431,7 @@
             // updateTimer
             // 
             this.updateTimer.Enabled = true;
-            this.updateTimer.Interval = 2000000000;
+            this.updateTimer.Interval = 2000;
             this.updateTimer.Tick += new System.EventHandler(this.updateTimer_Tick);
             // 
             // MainForm

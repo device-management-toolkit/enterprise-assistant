@@ -57,6 +57,8 @@ namespace OpenAMTEnterpriseAssistant
         public string argUserName = null;
         public string argPassword = null;
         public string argSecurityKey = null;
+        public int argPort;
+        public string argAddress;
         public string argDevNameType = null;
         public string argCAName = null;
         public string argCATemplate = null;
@@ -116,6 +118,8 @@ namespace OpenAMTEnterpriseAssistant
                         if (key == "user") { argUserName = val; argflags |= 2; }
                         if (key == "pass") { argPassword = val; argflags |= 4; }
                         if (key == "securityKey") { argSecurityKey = val; argflags |= 8; }
+                        if (key == "port") { argPort = Convert.ToInt32(val.TrimEnd()); argflags |= 10; }
+                        if (key == "address") { argAddress = val; argflags |= 12; }
                         if (key == "devnametype") { argDevNameType = val; }
                         if (key == "caname") { argCAName = val; }
                         if (key == "catemplate") { argCATemplate = val; }
@@ -305,20 +309,18 @@ namespace OpenAMTEnterpriseAssistant
             {
                  Log("Failed to Start websocket");
             }
-
             if (httpServer == null)
             {
                 try
                 {
                     httpServer = new OpenAMTEnterpriseAssistantHttpServer(server);
                     httpServer.StartServer();
-                    Log("Started httpServer...");
+                    Log("Started httpServer: " + argAddress + ":" + argPort);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    Log("Failed to Start httpServer");
+                    Log("Failed to Start httpServer" + ex);
                 }
-                
             }
         }
 
@@ -445,9 +447,9 @@ namespace OpenAMTEnterpriseAssistant
                         if (key == "host") { f.host = val; }
                         if (key == "user") { f.user = val; }
                         if (key == "pass") { f.pass = val; }
-                        if (key == "securitykey") {
-                            f.securityKey = val; 
-                        }
+                        if (key == "securitykey") { f.securityKey = val; }
+                        if (key == "port") { f.port = Convert.ToInt32(val); }
+                        if (key == "address") { f.address = val; }
                         if (key == "devnametype") { f.devNameType = val; }
                         if (key == "caname") { caname = val; }
                         if (key == "catemplate") { catemplate = val; }
@@ -478,6 +480,8 @@ namespace OpenAMTEnterpriseAssistant
                 argUserName = f.user;
                 argPassword = f.pass;
                 argSecurityKey = f.securityKey;
+                argPort = f.port;
+                argAddress = f.address;
                 argDevNameType = f.devNameType;
                 if (f.caname != "") { argCAName = f.caname; } else { argCAName = null; }
                 argCATemplate = f.catemplate;
@@ -492,6 +496,8 @@ namespace OpenAMTEnterpriseAssistant
                 config += "user=" + f.user + "\r\n";
                 config += "pass=" + f.pass + "\r\n";
                 config += "securityKey=" + f.securityKey + "\r\n";
+                config += "address=" + f.address + "\r\n";
+                config += "port=" + f.port + "\r\n";
                 config += "devNameType=" + f.devNameType + "\r\n";
                 if (f.caname != "") {
                     config += "caname=" + f.caname + "\r\n";

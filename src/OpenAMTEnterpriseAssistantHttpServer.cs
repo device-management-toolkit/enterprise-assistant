@@ -23,6 +23,8 @@ namespace OpenAMTEnterpriseAssistant
         private string _userName;
         private string _password;
         private string _securityKey;
+        private string _port;
+        private string _address;
 
         // Constructor that takes an OpenAMTEnterpriseAssistantServer instance
         public OpenAMTEnterpriseAssistantHttpServer(OpenAMTEnterpriseAssistantServer amtServer)
@@ -64,11 +66,19 @@ namespace OpenAMTEnterpriseAssistant
                         if (key == "securitykey") {
                             _securityKey = val; 
                         }
+                        if (key == "address")
+                        {
+                            _address = val;
+                        }
+                        if (key == "port")
+                        {
+                            _port = val;
+                        }
                     }
                 }
             }
             _listener = new HttpListener();
-            _listener.Prefixes.Add("http://*:8000/");
+            _listener.Prefixes.Add("http://"+_address+":"+_port+"/");
             _listener.Start();
 
             _listenerThread = new Thread(HandleRequests);
@@ -342,7 +352,7 @@ namespace OpenAMTEnterpriseAssistant
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("9EmRJTbIiIb4bIeSsmgcWIjrR6HyETqc")),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_securityKey)),
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 ClockSkew = TimeSpan.Zero

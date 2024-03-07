@@ -61,6 +61,10 @@
             this.label9 = new System.Windows.Forms.Label();
             this.devLocationComboBox = new System.Windows.Forms.ComboBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.cbAddress = new System.Windows.Forms.ComboBox();
+            this.lblAddress = new System.Windows.Forms.Label();
+            this.portTextBox = new System.Windows.Forms.MaskedTextBox();
+            this.Port = new System.Windows.Forms.Label();
             this.securityKeyTextBox = new System.Windows.Forms.TextBox();
             this.passTextBox = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -465,6 +469,10 @@
             // 
             this.groupBox7.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox7.Controls.Add(this.cbAddress);
+            this.groupBox7.Controls.Add(this.lblAddress);
+            this.groupBox7.Controls.Add(this.portTextBox);
+            this.groupBox7.Controls.Add(this.Port);
             this.groupBox7.Controls.Add(this.securityKeyTextBox);
             this.groupBox7.Controls.Add(this.passTextBox);
             this.groupBox7.Controls.Add(this.label10);
@@ -478,12 +486,56 @@
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "RPC Client";
             // 
+            // cbAddress
+            // 
+            this.cbAddress.FormattingEnabled = true;
+            this.cbAddress.Items.AddRange(new object[] {
+            "*"});
+            this.cbAddress.Location = new System.Drawing.Point(115, 9);
+            this.cbAddress.Name = "cbAddress";
+            this.cbAddress.Size = new System.Drawing.Size(157, 21);
+            this.cbAddress.TabIndex = 24;
+            this.cbAddress.SelectedIndexChanged += new System.EventHandler(this.cbAddress_SelectedIndexChanged);
+            // 
+            // lblAddress
+            // 
+            this.lblAddress.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblAddress.AutoSize = true;
+            this.lblAddress.Location = new System.Drawing.Point(6, 16);
+            this.lblAddress.Name = "lblAddress";
+            this.lblAddress.Size = new System.Drawing.Size(45, 13);
+            this.lblAddress.TabIndex = 23;
+            this.lblAddress.Text = "Address";
+            // 
+            // portTextBox
+            // 
+            this.portTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.portTextBox.Location = new System.Drawing.Point(370, 10);
+            this.portTextBox.Mask = "9999?9";
+            this.portTextBox.Name = "portTextBox";
+            this.portTextBox.PromptChar = ' ';
+            this.portTextBox.Size = new System.Drawing.Size(157, 20);
+            this.portTextBox.TabIndex = 22;
+            this.portTextBox.Text = "8000";
+            this.portTextBox.MaskChanged += new System.EventHandler(this.portTextBox_MaskChanged);
+            // 
+            // Port
+            // 
+            this.Port.AutoSize = true;
+            this.Port.Location = new System.Drawing.Point(299, 14);
+            this.Port.Name = "Port";
+            this.Port.Size = new System.Drawing.Size(26, 13);
+            this.Port.TabIndex = 20;
+            this.Port.Text = "Port";
+            // 
             // securityKeyTextBox
             // 
             this.securityKeyTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.securityKeyTextBox.Location = new System.Drawing.Point(116, 54);
+            this.securityKeyTextBox.Location = new System.Drawing.Point(115, 54);
             this.securityKeyTextBox.Name = "securityKeyTextBox";
+            this.securityKeyTextBox.PasswordChar = '*';
             this.securityKeyTextBox.Size = new System.Drawing.Size(412, 20);
             this.securityKeyTextBox.TabIndex = 18;
             this.securityKeyTextBox.TextChanged += new System.EventHandler(this.securityKeyTextBox_TextChanged);
@@ -492,9 +544,10 @@
             // 
             this.passTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.passTextBox.Location = new System.Drawing.Point(116, 33);
+            this.passTextBox.Location = new System.Drawing.Point(370, 32);
             this.passTextBox.Name = "passTextBox";
-            this.passTextBox.Size = new System.Drawing.Size(412, 20);
+            this.passTextBox.PasswordChar = '*';
+            this.passTextBox.Size = new System.Drawing.Size(157, 20);
             this.passTextBox.TabIndex = 17;
             this.passTextBox.TextChanged += new System.EventHandler(this.passTextBox_TextChanged);
             // 
@@ -512,7 +565,7 @@
             // 
             this.label2.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 34);
+            this.label2.Location = new System.Drawing.Point(299, 33);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(53, 13);
             this.label2.TabIndex = 15;
@@ -521,7 +574,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 14);
+            this.label3.Location = new System.Drawing.Point(5, 35);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(55, 13);
             this.label3.TabIndex = 3;
@@ -529,11 +582,9 @@
             // 
             // userTextBox
             // 
-            this.userTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.userTextBox.Location = new System.Drawing.Point(116, 12);
+            this.userTextBox.Location = new System.Drawing.Point(115, 32);
             this.userTextBox.Name = "userTextBox";
-            this.userTextBox.Size = new System.Drawing.Size(412, 20);
+            this.userTextBox.Size = new System.Drawing.Size(157, 20);
             this.userTextBox.TabIndex = 0;
             this.userTextBox.TextChanged += new System.EventHandler(this.userTextBox_TextChanged);
             // 
@@ -640,5 +691,9 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox securityKeyTextBox;
         private System.Windows.Forms.TextBox passTextBox;
+        private System.Windows.Forms.Label Port;
+        private System.Windows.Forms.MaskedTextBox portTextBox;
+        private System.Windows.Forms.Label lblAddress;
+        private System.Windows.Forms.ComboBox cbAddress;
     }
 }
