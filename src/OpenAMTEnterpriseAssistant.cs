@@ -325,13 +325,13 @@ namespace OpenAMTEnterpriseAssistant
                 if ((satelliteFlags != 2) || (nodeid == null) || (domain == null) || (reqid == null) || (authProtocol > 10) || (authProtocol < 0))
                 {
                     response["status"] = "Error";
-                    response["details"] = "Invalid request for 802.1x profile.";
-                    Log("Open AMT Enterprise Assistant - Invalid request for 802.1x profile.");
+                    response["details"] = "Invalid request for profile.";
+                    Log("Open AMT Enterprise Assistant - Invalid request for profile.");
                     return response;
                 }
 
                 if (devname != null) {
-                    Log("Open AMT Enterprise Assistant - " + devname + " - 802.1x " + netAuthStrings[authProtocol] + " request."); 
+                    Log("Open AMT Enterprise Assistant - " + devname + " - " +netAuthStrings[authProtocol] + " request."); 
                 }
 
                 switch (authProtocol)
@@ -346,10 +346,10 @@ namespace OpenAMTEnterpriseAssistant
                                 return response; // We dont have a CA, EAP-TLS is not supported.
                             }
 
-                            // Check that this computer is allowed to have a 802.1x profile
+                            // Check that this computer is allowed to have a profile
                             // TODO
 
-                            // If Intel AMT already has a 802.1x client certificate, check if it's correct
+                            // If Intel AMT already has a client certificate, check if it's correct
                             bool certOk = false;
                             string certRovokeSerialNumber = null;
                             if ((clientCert != null) && (clientCertId != null))
@@ -378,7 +378,7 @@ namespace OpenAMTEnterpriseAssistant
 
                             if (certOk)
                             {
-                                // Existing 802.1x client certificate is ok, just renew the 802.1x profile
+                                // Existing client certificate is ok, just renew the profile
                                 DomainControllerServices.ActiveDirectoryComputerObject computer = null;
                                 try { computer = dc.CreateComputer(ComputerName(devname, nodeid), ComputerDesciption(devname, nodeid, devVersion), devSecurityGroups); } catch (Exception ex) { Log("MeshCentralSatelliteServer: " + ex.ToString()); }
                                 if (computer != null)
@@ -390,7 +390,7 @@ namespace OpenAMTEnterpriseAssistant
                                     response["password"] = computer.Password;
                                     if (caRootCert != null) { response["rootcert"] = Convert.ToBase64String(caRootCert.GetRawCertData(), Base64FormattingOptions.None); }
                                     response["certid"] = clientCertId;
-                                    message["subaction"] = "802.1x-Profile-Completed";
+                                    message["subaction"] = "Profile-Completed";
                                     message["response"] = response;
 
                                     if (!isHttpRequest)
@@ -416,10 +416,10 @@ namespace OpenAMTEnterpriseAssistant
 
                                 // Request that Intel AMT generate a key pair
                                 response["action"] = "satellite";
-                                response["satelliteFlags"] = 2; // Indicate 802.1x operation
+                                response["satelliteFlags"] = 2; // Indicate operation
                                 response["nodeid"] = nodeid;
                                 response["domain"] = domain;
-                                response["subaction"] = "802.1x-KeyPair-Request";
+                                response["subaction"] = "KeyPair-Request";
                                 response["reqid"] = reqid;
                                 if (!isHttpRequest)
                                 {
@@ -448,7 +448,7 @@ namespace OpenAMTEnterpriseAssistant
                                     response["username"] = computer.SamAccountName;
                                     response["password"] = computer.Password;
                                     if (caRootCert != null) { response["rootcert"] = Convert.ToBase64String(caRootCert.GetRawCertData(), Base64FormattingOptions.None); }
-                                    message["subaction"] = "802.1x-Profile-Completed";
+                                    message["subaction"] = "Profile-Completed";
                                     message["response"] = response;
                                     if (!isHttpRequest)
                                     {
@@ -468,8 +468,8 @@ namespace OpenAMTEnterpriseAssistant
                     default:
                         {
                             response["status"] = "Error";
-                            response["details"] = "Unsupported 802.1x protocol";
-                            Log("Open AMT Enterprise Assistant - " + devname + " - Unsupported 802.1x protocol: " + netAuthStrings[authProtocol]);
+                            response["details"] = "Unsupported protocol";
+                            Log("Open AMT Enterprise Assistant - " + devname + " - Unsupported protocol: " + netAuthStrings[authProtocol]);
                             break;
                         }
                 }
@@ -480,7 +480,7 @@ namespace OpenAMTEnterpriseAssistant
                 response["details"] = "Exception occurred: " + ex.Message;
                 Log("Error in RequestFor8021xProfile: " + ex.Message);
             }
-            return response;
+            return message;
         }
 
 
@@ -522,8 +522,8 @@ namespace OpenAMTEnterpriseAssistant
             if ((satelliteFlags != 2) || (nodeid == null) || (domain == null) || (reqid == null) || (authProtocol > 10) || (authProtocol < 0))
             {
                 errmessage["status"] = "Error";
-                errmessage["details"] = "Invalid response for 802.1x key pair generation.";
-                Log("Open AMT Enterprise Assistant -  Invalid response for 802.1x key pair generation.");
+                errmessage["details"] = "Invalid response for key pair generation.";
+                Log("Open AMT Enterprise Assistant -  Invalid response for key pair generation.");
                 return errmessage;
             }
             
@@ -539,7 +539,7 @@ namespace OpenAMTEnterpriseAssistant
                             return errmessage; // We dont have a CA, EAP-TLS is not supported.
                         }
 
-                        // Check that this computer is allowed to have a 802.1x profile
+                        // Check that this computer is allowed to have a profile
                         // TODO
 
                         // Generate a certificate for this device
@@ -580,10 +580,10 @@ namespace OpenAMTEnterpriseAssistant
                             response["csr"] = csr;
                             response["keyInstanceId"] = keyInstanceId;
                             rmessage["action"] = "satellite";
-                            rmessage["satelliteFlags"] = 2; // Indicate 802.1x operation
+                            rmessage["satelliteFlags"] = 2; // Indicate operation
                             rmessage["nodeid"] = nodeid;
                             rmessage["domain"] = domain;
-                            rmessage["subaction"] = "802.1x-CSR-Request";
+                            rmessage["subaction"] = "CSR-Request";
                             rmessage["reqid"] = reqid;
                             rmessage["response"] = response;
                             if (!isHttpRequest)
@@ -597,8 +597,8 @@ namespace OpenAMTEnterpriseAssistant
                 default:
                     {
                         errmessage["status"] = "Error";
-                        errmessage["details"] = "ERROR: " + devname + " - Unsupported 802.1x protocol: " + netAuthStrings[authProtocol];
-                        Log("Open AMT Enterprise Assistant - " + devname + " - Unsupported 802.1x protocol: " + netAuthStrings[authProtocol]);
+                        errmessage["details"] = "ERROR: " + devname + " - Unsupported protocol: " + netAuthStrings[authProtocol];
+                        Log("Open AMT Enterprise Assistant - " + devname + " - Unsupported protocol: " + netAuthStrings[authProtocol]);
                         return errmessage;
                     }
             }
@@ -638,8 +638,8 @@ namespace OpenAMTEnterpriseAssistant
             if ((satelliteFlags != 2) || (nodeid == null) || (domain == null) || (reqid == null) || (authProtocol > 10) || (authProtocol < 0) || (signedcsr == null))
             {
                 errmessage["status"] = "Error";
-                errmessage["details"] = "Invalid response for 802.1x CSR.";
-                Log("Open AMT Enterprise Assistant - Invalid response for 802.1x CSR.");
+                errmessage["details"] = "Invalid response for CSR.";
+                Log("Open AMT Enterprise Assistant - Invalid response for CSR.");
                 return errmessage;
             }
 
@@ -655,7 +655,7 @@ namespace OpenAMTEnterpriseAssistant
                             return errmessage; // We dont have a CA, EAP-TLS is not supported.
                         }
 
-                        // Check that this computer is allowed to have a 802.1x profile
+                        // Check that this computer is allowed to have a profile
                         // TODO
 
                         // Sign the certificate request
@@ -676,7 +676,7 @@ namespace OpenAMTEnterpriseAssistant
                                 response["domain"] = dc.DomainName;
                                 response["username"] = computer.SamAccountName;
                                 //response["password"] = computer.Password;
-                                message["subaction"] = "802.1x-Profile-Completed";
+                                message["subaction"] = "Profile-Completed";
                                 message["response"] = response;
                                 if (!isHttpRequest)
                                 {
@@ -704,8 +704,8 @@ namespace OpenAMTEnterpriseAssistant
                 default:
                     {
                         errmessage["status"] = "Error";
-                        errmessage["details"] = "ERROR: " + devname + " - Unsupported 802.1x protocol: " + netAuthStrings[authProtocol];
-                        Log("Open AMT Enterprise Assistant - " + devname + " - Unsupported 802.1x protocol: " + netAuthStrings[authProtocol]);
+                        errmessage["details"] = "ERROR: " + devname + " - Unsupported protocol: " + netAuthStrings[authProtocol];
+                        Log("Open AMT Enterprise Assistant - " + devname + " - Unsupported protocol: " + netAuthStrings[authProtocol]);
                         return errmessage;
                     }
             }
@@ -736,7 +736,7 @@ namespace OpenAMTEnterpriseAssistant
                 return;
             }
 
-            if (devname != null) { Log("Open AMT Enterprise Assistant - " + devname + " - 802.1x removal request."); }
+            if (devname != null) { Log("Open AMT Enterprise Assistant - " + devname + " - removal request."); }
 
             if ((dc != null) && (dc.RemoveComputer(NodeIdToComputerId(nodeid))))
             {

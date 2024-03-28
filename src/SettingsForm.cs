@@ -20,6 +20,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Net;
+using System.Text;
 
 namespace OpenAMTEnterpriseAssistant
 {
@@ -339,7 +340,18 @@ namespace OpenAMTEnterpriseAssistant
 
         private void securityKeyTextBox_TextChanged(object sender, EventArgs e)
         {
-            updateInfo();
+            var keyBytes = Encoding.UTF8.GetBytes(securityKeyTextBox.Text);
+            int keyLengthBits = keyBytes.Length * 8; // Convert byte length to bit length
+            // Check if the key length is valid for AES
+            if (keyLengthBits == 128 || keyLengthBits == 192 || keyLengthBits == 256)
+            {
+                updateInfo();
+                securityKeyTextBox.BackColor = System.Drawing.Color.LightGreen;
+            }
+            else
+            {
+                securityKeyTextBox.BackColor = System.Drawing.Color.Red;
+            }
         }
 
         private void portTextBox_MaskChanged(object sender, EventArgs e)

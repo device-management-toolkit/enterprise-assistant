@@ -61,6 +61,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.devLocationComboBox = new System.Windows.Forms.ComboBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.warnlbl = new System.Windows.Forms.Label();
             this.cbAddress = new System.Windows.Forms.ComboBox();
             this.lblAddress = new System.Windows.Forms.Label();
             this.portTextBox = new System.Windows.Forms.MaskedTextBox();
@@ -469,6 +470,7 @@
             // 
             this.groupBox7.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox7.Controls.Add(this.warnlbl);
             this.groupBox7.Controls.Add(this.cbAddress);
             this.groupBox7.Controls.Add(this.lblAddress);
             this.groupBox7.Controls.Add(this.portTextBox);
@@ -481,10 +483,21 @@
             this.groupBox7.Controls.Add(this.userTextBox);
             this.groupBox7.Location = new System.Drawing.Point(3, 104);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(534, 83);
+            this.groupBox7.Size = new System.Drawing.Size(534, 96);
             this.groupBox7.TabIndex = 16;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "RPC Client";
+            // 
+            // warnlbl
+            // 
+            this.warnlbl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.warnlbl.AutoSize = true;
+            this.warnlbl.Location = new System.Drawing.Point(110, 76);
+            this.warnlbl.Name = "warnlbl";
+            this.warnlbl.Size = new System.Drawing.Size(274, 13);
+            this.warnlbl.TabIndex = 25;
+            this.warnlbl.Text = "Security key should be of length 16, 24, or 32 characters";
             // 
             // cbAddress
             // 
@@ -501,11 +514,11 @@
             // 
             this.lblAddress.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblAddress.AutoSize = true;
-            this.lblAddress.Location = new System.Drawing.Point(6, 16);
+            this.lblAddress.Location = new System.Drawing.Point(6, 15);
             this.lblAddress.Name = "lblAddress";
-            this.lblAddress.Size = new System.Drawing.Size(45, 13);
+            this.lblAddress.Size = new System.Drawing.Size(62, 13);
             this.lblAddress.TabIndex = 23;
-            this.lblAddress.Text = "Address";
+            this.lblAddress.Text = "EA Address";
             // 
             // portTextBox
             // 
@@ -555,7 +568,7 @@
             // 
             this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(5, 58);
+            this.label10.Location = new System.Drawing.Point(5, 57);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(66, 13);
             this.label10.TabIndex = 16;
@@ -565,7 +578,7 @@
             // 
             this.label2.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(299, 33);
+            this.label2.Location = new System.Drawing.Point(299, 39);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(53, 13);
             this.label2.TabIndex = 15;
@@ -695,5 +708,6 @@
         private System.Windows.Forms.MaskedTextBox portTextBox;
         private System.Windows.Forms.Label lblAddress;
         private System.Windows.Forms.ComboBox cbAddress;
+        private System.Windows.Forms.Label warnlbl;
     }
 }
