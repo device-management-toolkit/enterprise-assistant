@@ -1,6 +1,8 @@
 # Enterprise Assistant
 
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/open-amt-cloud-toolkit/enterprise-assistant/badge)](https://api.securityscorecards.dev/projects/github.com/open-amt-cloud-toolkit/enterprise-assistant) [![Discord Shield](https://discordapp.com/api/guilds/1063200098680582154/widget.png?style=shield)](https://discord.gg/yrcMp2kDWh)
+![CodeQL](https://img.shields.io/github/actions/workflow/status/open-amt-cloud-toolkit/enterprise-assistant/codeql.yml?style=for-the-badge&label=CodeQL)
+![OSSF-Scorecard Score](https://img.shields.io/ossf-scorecard/github.com/open-amt-cloud-toolkit/enterprise-assistant?style=for-the-badge&label=OSSF%20Score)
+![Discord](https://img.shields.io/discord/1063200098680582154?style=for-the-badge&label=Discord)
 
 > Disclaimer: Production viable releases are tagged and listed under 'Releases'.  All other check-ins should be considered 'in-development' and should not be used in production
 
