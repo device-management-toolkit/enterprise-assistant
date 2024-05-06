@@ -497,7 +497,7 @@
             this.warnlbl.Name = "warnlbl";
             this.warnlbl.Size = new System.Drawing.Size(274, 13);
             this.warnlbl.TabIndex = 25;
-            this.warnlbl.Text = "Security key should be of length 16, 24, or 32 characters";
+            this.warnlbl.Text = "Security key should be of length 32 or 64 characters";
             // 
             // cbAddress
             // 

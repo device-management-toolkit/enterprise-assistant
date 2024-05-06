@@ -343,7 +343,7 @@ namespace OpenAMTEnterpriseAssistant
             var keyBytes = Encoding.UTF8.GetBytes(securityKeyTextBox.Text);
             int keyLengthBits = keyBytes.Length * 8; // Convert byte length to bit length
             // Check if the key length is valid for AES
-            if (keyLengthBits == 128 || keyLengthBits == 192 || keyLengthBits == 256)
+            if (keyLengthBits == 256 || keyLengthBits == 512)
             {
                 updateInfo();
                 securityKeyTextBox.BackColor = System.Drawing.Color.LightGreen;
